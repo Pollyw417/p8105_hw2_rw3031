@@ -5,26 +5,23 @@ date: "2024-09-24"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, echo=FALSE, message = FALSE}
+library(tidyverse)
 ```
 
-## R Markdown
+### import and tidy the NYC transit dataset 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+subway = 
+  read_csv("./NYC_Transit_Subway_Entrance_And_Exit_Data.csv")|>
+  janitor::clean_names()|>
+  select(line:entry, vending, ada)|>
+  mutate(entry = recode(entry, "YES" = TRUE ,"NO" = FALSE))
 ```
+The subway dataset contains variables including: `r names(subway)`.
 
-## Including Plots
+For cleaning up the data, I convert the format of all of the column names into lower case and connected through underscore. I have retain the variables that we are interested in and convert the entry column into a logical variable. 
 
-You can also embed plots, for example:
+There are `r ncol(subway)` columns and `r nrow(subway)` rows. The data is tidy now. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
