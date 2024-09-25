@@ -9,6 +9,8 @@ output: github_document
 library(tidyverse)
 ```
 
+# Problem 1
+
 ### import and tidy the NYC transit dataset 
 
 ```{r}
@@ -18,10 +20,50 @@ subway =
   select(line:entry, vending, ada)|>
   mutate(entry = recode(entry, "YES" = TRUE ,"NO" = FALSE))
 ```
+### describe the dataset
+
 The subway dataset contains variables including: `r names(subway)`.
 
 For cleaning up the data, I convert the format of all of the column names into lower case and connected through underscore. I have retain the variables that we are interested in and convert the entry column into a logical variable. 
 
-There are `r ncol(subway)` columns and `r nrow(subway)` rows. The data is tidy now. 
+There are `r ncol(subway)` columns and `r nrow(subway)` rows. 
+
+The data is not tidy since we still have the route column in wide format.Each route is stored in a different column instead of consolidated together.
+
+```{r}
+station = distinct(subway,line,station_name, .keep_all = TRUE)
+nrow(station)
+nrow(filter(station,ada == "TRUE"))
+nrow(filter(station,vending == "NO"))/nrow(station)*100
+```
+There are 465 distinct stations.
+84 stations are ADA compliant. 
+1.94% of the stations entrance/exit are without vending allow entrance. 
+
+### tidy up the route variable
+
+```{r}
+subway =
+  subway|>
+  mutate(route8 = as.character(route8),
+         route9 = as.character(route9),
+         route10 = as.character(route10),
+         route11 = as.character(route11),)|>
+  pivot_longer(
+    route1:route11,
+    names_to = "route_no",
+    names_prefix = "route",
+    values_to = "route_name"
+  )
+```
+
+### A_train stations
+
+```{r}
+station = distinct(subway,line,station_name, .keep_all = TRUE)
+nrow(filter(station,route_name == "A"))
+nrow(filter(station,route_name =="A", ada == "TRUE"))
+```
+There are 60 distinct stations serve the A train and 17 of them are ADA compliance. 
 
 
