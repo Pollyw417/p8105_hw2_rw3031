@@ -7,6 +7,7 @@ output: github_document
 
 ```{r setup, echo=FALSE, message = FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 # Problem 1
@@ -15,7 +16,8 @@ library(tidyverse)
 
 ```{r}
 subway = 
-  read_csv("./NYC_Transit_Subway_Entrance_And_Exit_Data.csv")|>
+  read_csv("./NYC_Transit_Subway_Entrance_And_Exit_Data.csv",  
+           na = c("NA", ".",""))|>
   janitor::clean_names()|>
   select(line:entry, vending, ada)|>
   mutate(entry = recode(entry, "YES" = TRUE ,"NO" = FALSE))
@@ -66,4 +68,38 @@ nrow(filter(station,route_name =="A", ada == "TRUE"))
 ```
 There are 60 distinct stations serve the A train and 17 of them are ADA compliance. 
 
+# Problem 2
 
+### import the trash-wheel dataset 
+```{r}
+mr_trash = 
+  read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
+  janitor::clean_names()|>
+  select(dumpster, weight_tons:homes_powered)|>
+  mutate(sports_balls=as.integer(sports_balls), type = "mr.")
+```
+```{r}
+professor_trash = 
+  read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
+  janitor::clean_names()|>
+  select(dumpster, weight_tons:homes_powered)|>
+  mutate(type = "professor")
+```
+
+```{r}
+Gwynnda = 
+  read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
+  janitor::clean_names()|>
+  select(dumpster, weight_tons:homes_powered)|>
+  mutate(type = "gwynnda")
+```
+
+### merge the three datasets 
+```{r}
+trash_wheel = 
+  bind_rows(mr_trash, professor_trash, Gwynnda)
+```
+
+The merged trash_wheel dataset has the follow variables `r names(trash_wheel)`. There are `r nrow(trash_wheel)`observations and `r ncol(trash_wheel)` variables. `
+
+# Problem 3
