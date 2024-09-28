@@ -173,4 +173,19 @@ I merge the three dataset using left join, the bakes and results dataset are mat
 write_csv(gbb,"./gbb_datasets/gbb.csv")
 ```
 
-###
+### winner and star baker 
+
+```{r}
+winner =
+  gbb|>
+  filter(result %in% c("STAR BAKER","WINNER"), series >= 5)|>
+  select(series,episode,first_name,result)|>
+  pivot_wider(
+    names_from = "result",
+    values_from = "first_name"
+  )
+```
+
+In season 6 to 9 the winner is quite predictable as the winners have all received the star_baker for multiple times. In season 5, Nancy only won one star baker award before becoming the final winner. In season 10, David hasn't been a star baker for anytime before becoming the final winner, which is a surprising result. 
+
+
