@@ -75,14 +75,14 @@ There are 60 distinct stations serve the A train and 17 of them are ADA complian
 mr_trash = 
   read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
   janitor::clean_names()|>
-  select(dumpster, weight_tons:homes_powered)|>
-  mutate(sports_balls=as.integer(sports_balls), type = "mr.")
+  mutate(sports_balls=as.integer(sports_balls), 
+         type = "mr.",
+         year = as.integer(year))
 ```
 ```{r}
 professor_trash = 
   read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
   janitor::clean_names()|>
-  select(dumpster, weight_tons:homes_powered)|>
   mutate(type = "professor")
 ```
 
@@ -90,7 +90,6 @@ professor_trash =
 Gwynnda = 
   read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
   janitor::clean_names()|>
-  select(dumpster, weight_tons:homes_powered)|>
   mutate(type = "gwynnda")
 ```
 
@@ -100,6 +99,78 @@ trash_wheel =
   bind_rows(mr_trash, professor_trash, Gwynnda)
 ```
 
-The merged trash_wheel dataset has the follow variables `r names(trash_wheel)`. There are `r nrow(trash_wheel)`observations and `r ncol(trash_wheel)` variables. `
+The merged trash_wheel dataset has the follow variables `r names(trash_wheel)`. There are `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables. `
+
+```{r}
+sum_professor = 
+  professor_trash|>
+  summarise(sum(weight_tons, na.rm = FALSE))
+sum_gwynnda = 
+  Gwynnda|>
+  filter(year == 2022, month == "June")|>
+  summarise(sum(cigarette_butts, na.rm = FALSE))
+```
+
+The total weight of the trash collected by the professor trash wheel is `r sum_professor` tons. The total number of cigarette butts collected by the gwynnda trash wheel in June 2022 is `r sum_gwynnda`.
 
 # Problem 3
+
+### import the data 
+```{r}
+bakers=
+  read_csv("./gbb_datasets/bakers.csv")|>
+  janitor::clean_names()|>
+  separate(baker_name,into = c("first_name", "last_name"),sep=" ")
+
+bakes=
+  read_csv("./gbb_datasets/bakes.csv")|>
+  janitor::clean_names()|>
+  rename(first_name = baker)
+
+results=
+  read_csv("./gbb_datasets/results.csv", skip = 2)|>
+  janitor::clean_names()|>
+  rename(first_name = baker)
+```
+I imported the three dataset and just the janitor package to change the format of all variable name to be lowercase and separate with underscore. 
+
+While looking at the three datasets, I discovered that in the results and bakes dataset, we only included the first name of the baker while in the baker dataset, we include the full name of the bakers. Therefore, I separate the name in the baker dataset into two column for first name and last name. I also rename the baker column in the result and bakes dataset as first name in order to match with the bakers dataset. 
+
+For the results dataset, it has a heading which means the first 2 rows of the csv file does not contain any data, so I skip them while importing. 
+
+```{r}
+anti_join(results,bakers,by = "first_name")
+anti_join(bakers,results,by = "first_name")
+anti_join(results,bakes, by = c("series","episode"))
+anti_join(bakes, results, by = c("series","episode"))
+anti_join(bakes, bakers, by = "first_name")
+anti_join(bakers, bakes, by = "first_name")
+```
+Through anti-join, we found that Baker Joanne from the 2nd series name was mistyped as Jo in the bakers dataset. Therefore I fixed the typo in the bakers dataset. (code below)
+
+In addition, I found that information for the bakes during the 9th and 10th series are missing. 
+
+```{r}
+bakers|>
+  mutate(first_name = ifelse(first_name == "Jo","Joanne", first_name))
+```
+
+### joining the gbb dataset 
+
+```{r}
+gbb = 
+  left_join(results, bakes, by = c("first_name", "series", "episode"))|>
+  left_join(bakers,by = c("first_name", "series"))|>
+  relocate(series,episode,first_name,last_name, signature_bake,show_stopper,technical,result,baker_age:hometown)|>
+  arrange(series, episode)
+```
+
+I merge the three dataset using left join, the bakes and results dataset are matched based on first_name, serires and episode, Then I left join the bakers dataset based on first_name and series. Secondly, I relocate the sequence of the columns to have the series and episode number at first, follows the baker's name, bakers's bakes and result and finally additional information about each baker. I also sort the dataset in the order of the series and episodes. 
+
+### export the gbb dataset 
+
+```{r}
+write_csv(gbb,"./gbb_datasets/gbb.csv")
+```
+
+###
