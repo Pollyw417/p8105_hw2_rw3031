@@ -102,16 +102,14 @@ trash_wheel =
 The merged trash_wheel dataset has the follow variables `r names(trash_wheel)`. There are `r nrow(trash_wheel)` observations and `r ncol(trash_wheel)` variables. `
 
 ```{r}
-sum_professor = 
-  professor_trash|>
+professor_trash|>
   summarise(sum(weight_tons, na.rm = FALSE))
-sum_gwynnda = 
-  Gwynnda|>
+Gwynnda|>
   filter(year == 2022, month == "June")|>
   summarise(sum(cigarette_butts, na.rm = FALSE))
 ```
 
-The total weight of the trash collected by the professor trash wheel is `r sum_professor` tons. The total number of cigarette butts collected by the gwynnda trash wheel in June 2022 is `r sum_gwynnda`.
+The total weight of the trash collected by the professor trash wheel is 432.52 tons. The total number of cigarette butts collected by the gwynnda trash wheel in June 2022 is 18120.
 
 # Problem 3
 
