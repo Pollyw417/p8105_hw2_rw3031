@@ -20,7 +20,7 @@ subway =
            na = c("NA", ".",""))|>
   janitor::clean_names()|>
   select(line:entry, vending, ada)|>
-  mutate(entry = recode(entry, "YES" = TRUE ,"NO" = FALSE))
+  mutate(entry = ifelse(entry == "YES", TRUE , FALSE))
 ```
 ### describe the dataset
 
