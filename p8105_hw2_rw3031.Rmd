@@ -73,22 +73,23 @@ There are 60 distinct stations serve the A train and 17 of them are ADA complian
 ### import the trash-wheel dataset 
 ```{r}
 mr_trash = 
-  read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
+  read_excel("./202409 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
   janitor::clean_names()|>
+  select(dumpster:homes_powered)|>
   mutate(sports_balls=as.integer(sports_balls), 
          type = "mr.",
          year = as.integer(year))
 ```
 ```{r}
 professor_trash = 
-  read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
+  read_excel("./202409 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
   janitor::clean_names()|>
   mutate(type = "professor")
 ```
 
 ```{r}
 Gwynnda = 
-  read_excel("./202309 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
+  read_excel("./202409 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda Trash Wheel", skip = 1,  na = c("NA", ".","")) |>
   janitor::clean_names()|>
   mutate(type = "gwynnda")
 ```
@@ -103,13 +104,13 @@ The merged trash_wheel dataset has the follow variables `r names(trash_wheel)`. 
 
 ```{r}
 professor_trash|>
-  summarise(sum(weight_tons, na.rm = FALSE))
+  summarise(sum(weight_tons, na.rm = TRUE))
 Gwynnda|>
   filter(year == 2022, month == "June")|>
   summarise(sum(cigarette_butts, na.rm = FALSE))
 ```
 
-The total weight of the trash collected by the professor trash wheel is 432.52 tons. The total number of cigarette butts collected by the gwynnda trash wheel in June 2022 is 18120.
+The total weight of the trash collected by the professor trash wheel is 488 tons. The total number of cigarette butts collected by the gwynnda trash wheel in June 2022 is 18120.
 
 # Problem 3
 
