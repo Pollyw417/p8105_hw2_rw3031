@@ -20,7 +20,11 @@ subway =
            na = c("NA", ".",""))|>
   janitor::clean_names()|>
   select(line:entry, vending, ada)|>
-  mutate(entry = ifelse(entry == "YES", TRUE , FALSE))
+  mutate(entry = ifelse(entry == "YES", TRUE , FALSE))|>
+  mutate(route8 = as.character(route8),
+         route9 = as.character(route9),
+         route10 = as.character(route10),
+         route11 = as.character(route11),)
 ```
 ### describe the dataset
 
@@ -36,21 +40,20 @@ The data is not tidy since we still have the route column in wide format.Each ro
 station = distinct(subway,line,station_name, .keep_all = TRUE)
 nrow(station)
 nrow(filter(station,ada == "TRUE"))
-nrow(filter(station,vending == "NO"))/nrow(station)*100
+subway|>
+  filter(vending == "NO") |> 
+  pull(entry) |> 
+  mean()
 ```
 There are 465 distinct stations.
 84 stations are ADA compliant. 
-1.94% of the stations entrance/exit are without vending allow entrance. 
+37.70% of the stations entrance/exit are without vending allow entrance. 
 
 ### tidy up the route variable
 
 ```{r}
 subway =
   subway|>
-  mutate(route8 = as.character(route8),
-         route9 = as.character(route9),
-         route10 = as.character(route10),
-         route11 = as.character(route11),)|>
   pivot_longer(
     route1:route11,
     names_to = "route_no",
